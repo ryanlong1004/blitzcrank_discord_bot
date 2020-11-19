@@ -2,7 +2,7 @@
 
 See:
 https://packaging.python.org/guides/distributing-packages-using-setuptools/
-https://github.com/pypa/sampleproject
+https://github.com/pypa/blitzcrank_discord_bot
 """
 
 # Always prefer setuptools over distutils
@@ -23,14 +23,14 @@ setup(
     # package, this name will be registered for you. It will determine how
     # users can install this project, e.g.:
     #
-    # $ pip install sampleproject
+    # $ pip install blitzcrank_discord_bot
     #
-    # And where it will live on PyPI: https://pypi.org/project/sampleproject/
+    # And where it will live on PyPI: https://pypi.org/project/blitzcrank_discord_bot/
     #
     # There are some restrictions on what makes a valid project name
     # specification here:
     # https://packaging.python.org/specifications/core-metadata/#name
-    name='sampleproject',  # Required
+    name='blitzcrank_discord_bot',  # Required
 
     # Versions should comply with PEP 440:
     # https://www.python.org/dev/peps/pep-0440/
@@ -43,7 +43,7 @@ setup(
     # This is a one-line description or tagline of what your project does. This
     # corresponds to the "Summary" metadata field:
     # https://packaging.python.org/specifications/core-metadata/#summary
-    description='A sample Python project',  # Optional
+    description='A bot for Discord named Blitzcrank',  # Optional
 
     # This is an optional longer description of your project that represents
     # the body of text which users will see when they visit PyPI.
@@ -53,7 +53,7 @@ setup(
     #
     # This field corresponds to the "Description" metadata field:
     # https://packaging.python.org/specifications/core-metadata/#description-optional
-    long_description=long_description,  # Optional
+    long_description="Description",  # Optional
 
     # Denotes that our long_description is in Markdown; valid values are
     # text/plain, text/x-rst, and text/markdown
@@ -71,7 +71,7 @@ setup(
     #
     # This field corresponds to the "Home-Page" metadata field:
     # https://packaging.python.org/specifications/core-metadata/#home-page-optional
-    url='https://github.com/pypa/sampleproject',  # Optional
+    url='https://github.com/pypa/blitzcrank_discord_bot',  # Optional
 
     # This should be your name or the name of the organization which owns the
     # project.
@@ -79,7 +79,7 @@ setup(
 
     # This should be a valid email address corresponding to the author listed
     # above.
-    author_email='ryan@redbit.tech',  # Optional
+    author_email='ryan@rlong.io',  # Optional
 
     # Classifiers help users find your project by categorizing it.
     #
@@ -113,7 +113,7 @@ setup(
     # project page. What does your project relate to?
     #
     # Note that this is a string of words separated by whitespace, not a list.
-    keywords='sample setuptools development',  # Optional
+    keywords='bot discord blitzcrank setuptools development',  # Optional
 
     # When your source code is in a subdirectory under the project root, e.g.
     # `src/`, it is necessary to specify the `package_dir` argument.
@@ -142,13 +142,16 @@ setup(
     #
     # For an analysis of "install_requires" vs pip's requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
-    install_requires=[],  # Optional
+    install_requires=[
+        'discord>=1.0.1',
+        'discord.py>=1.5.1',
+    ],  # Optional
 
     # List additional groups of dependencies here (e.g. development
     # dependencies). Users will be able to install these using the "extras"
     # syntax, for example:
     #
-    #   $ pip install sampleproject[dev]
+    #   $ pip install blitzcrank_discord_bot[dev]
     #
     # Similar to `install_requires` above, these must be valid existing
     # projects.
@@ -168,7 +171,7 @@ setup(
     # http://docs.python.org/distutils/setupscript.html#installing-additional-files
     #
     # In this case, 'data_file' will be installed into '<sys.prefix>/my_data'
-    data_files=[('my_data', ['data/data_file'])],  # Optional
+    # data_files=[('my_data', ['data/data_file'])],  # Optional
 
     # To provide executable scripts, use entry points in preference to the
     # "scripts" keyword. Entry points provide cross-platform support and allow
@@ -179,7 +182,7 @@ setup(
     # executes the function `main` from this package when invoked:
     entry_points={  # Optional
         'console_scripts': [
-            'sample=sample:main',
+            'blitz_start=blitzcrank.bot',
         ],
     },
 
@@ -193,8 +196,8 @@ setup(
     # maintainers, and where to support the project financially. The key is
     # what's used to render the link text on PyPI.
     project_urls={  # Optional
-        'Bug Reports': 'https://github.com/saltycatfish/sampleproject/issues',
+        'Bug Reports': 'https://github.com/rlongio/blitzcrank_discord_bot/issues',
         'Funding': 'https://donate.pypi.org',
-        'Source': 'https://github.com/saltycatfish/sampleproject/',
+        'Source': 'https://github.com/rlongio/blitzcrank_discord_bot/',
     },
 )

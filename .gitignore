@@ -25,3 +25,8 @@ htmlcov/
 # pycharm files
 .idea/
 
+# environment files
+.env
+
+# log files
+*.log
