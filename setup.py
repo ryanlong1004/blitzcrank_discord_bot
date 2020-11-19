@@ -182,7 +182,7 @@ setup(
     # executes the function `main` from this package when invoked:
     entry_points={  # Optional
         'console_scripts': [
-            'blitz_start=blitzcrank.bot',
+            'blitz_start=blitzcrank.bot:main',
         ],
     },
 
