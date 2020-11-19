@@ -4,6 +4,8 @@ from discord.ext import commands
 from discord.utils import get
 from dotenv import load_dotenv
 import logging
+from blitzcrank.cogs.admin_utilities import AdminUtilities
+from blitzcrank.cogs.permissions import Permissions
 
 def main():
     load_dotenv()
@@ -21,7 +23,7 @@ def main():
 
     @bot.event
     async def on_ready() -> None:
-        print("We have logged in as {0.user}".format(bot))
+        logging.info("We have logged in as {0.user}".format(bot))
 
 
     # @bot.event
@@ -31,38 +33,13 @@ def main():
 
     #     return
 
-    def fetch_role_by_name(name: str) -> discord.Role:
-        return get(member.server.roles, name=name)
-
     @bot.event
     async def on_member_join(member):
         await member.create_dm()
         await member.dm_channel.send(f"Hi {member.name}, please head to #rules and type !agree to become a member.")
 
-    @bot.command()
-    @commands.has_role("admin")
-    async def kisses(ctx: commands.Context) -> None:
-        response = "Muah muah muah"
-        await ctx.send(response)
-
-    @bot.command(name="mentor")
-    async def mentor(ctx: commands.Context) -> None:
-        member = ctx.message.author
-        role = get(member.guild.roles, name='Mentor')
-        await member.add_roles(role, reason="user requested")
-
-    @bot.command(name="agree")
-    async def member(ctx: commands.Context) -> None:
-        member = ctx.message.author
-        role = get(member.guild.roles, name='Member')
-        await member.add_roles(role, reason="user accepted rules")
-
-    @bot.command(name="oauth2")
-    @commands.has_role("Admin")
-    async def oauth2_url(ctx: commands.Context) -> str:
-        await ctx.send(discord.utils.oauth_url(CLIENT_ID))
-
-
+    bot.add_cog(Permissions(bot))
+    bot.add_cog(AdminUtilities(bot, CLIENT_ID))
     bot.run(TOKEN)
 
 if __name__ == "__main__":
