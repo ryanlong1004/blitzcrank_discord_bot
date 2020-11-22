@@ -16,13 +16,12 @@ Most of the configuration for a Python project is done in the `setup.py` file,
 an example of which is included in this project. You should edit this file
 accordingly to adapt this sample project to your needs.
 
-----
+---
 
 This is the README file for the project.
 
 The file should use UTF-8 encoding and can be written using
-[reStructuredText][rst] or [markdown][md use] with the appropriate [key set][md
-use]. It will be used to generate the project webpage on PyPI and will be
+[reStructuredText][rst] or [markdown][md use] with the appropriate [key set][md use]. It will be used to generate the project webpage on PyPI and will be
 displayed as the project homepage on common code-hosting services, and should be
 written for that purpose.
 
@@ -37,3 +36,15 @@ may be appropriate.
 [rst]: http://docutils.sourceforge.net/rst.html
 [md]: https://tools.ietf.org/html/rfc7764#section-3.5 "CommonMark variant"
 [md use]: https://packaging.python.org/specifications/core-metadata/#description-content-type-optional
+
+## nOTES
+
+To prevent infinite loops, not always necessary.
+
+```python
+@bot.event
+async def on_message(message):
+     if message.author == bot.user:
+         return
+     return
+```
