@@ -4,7 +4,7 @@ from discord.utils import get
 
 import logging
 
-logger = logging.getLogger("blitzcrank")
+logger = logging.getLogger(__name__)
 
 
 class AdminUtilities(commands.Cog):
@@ -14,6 +14,11 @@ class AdminUtilities(commands.Cog):
 
     @commands.command(name="oauth2")
     @commands.has_role("Admin")
-    async def oauth2_url(self, ctx: commands.Context) -> str:
-        logger.info("sending Oauth2 url")
-        await ctx.send(discord.utils.oauth_url(self.client_id))
+    async def oauth2_url(self, ctx: commands.Context) -> None:
+        """Sends the oauth2 url for the bot to the chat room
+
+        Args:
+            ctx (commands.Context): context
+        """
+        logger.debug("sending Oauth2 url")
+        await ctx.message.author.send(discord.utils.oauth_url(self.client_id))

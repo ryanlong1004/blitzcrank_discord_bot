@@ -1,9 +1,12 @@
+from typing import Any, Dict
+
+
 class Video:
     def __init__(
         self,
         title: str,
         description: str,
-        thumbnails: str,
+        thumbnails: Dict[str, Any],
         publishedAt: str,
         link: str,
         etag: str,
@@ -14,6 +17,12 @@ class Video:
         self.publishedAt = publishedAt
         self.link = link
         self.etag = etag
+
+    def __repr__(self):
+        return str(self.__dict__.items())
+
+    def __str__(self):
+        return f"<{self.__class__.__name__} '{self.title}' {self.link}>"
 
     @classmethod
     def from_result(cls, result) -> "Video":

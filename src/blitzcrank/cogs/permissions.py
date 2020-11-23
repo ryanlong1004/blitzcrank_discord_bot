@@ -4,7 +4,7 @@ from discord.utils import get
 
 import logging
 
-logger = logging.getLogger("blitzcrank")
+logger = logging.getLogger(__name__)
 
 
 class Permissions(commands.Cog):
@@ -33,9 +33,18 @@ class Permissions(commands.Cog):
     #         await ctx.send('Hello {0.name}... This feels familiar.'.format(member))
     #     self._last_member = member
 
-    @commands.command(name="mentor")
+    @commands.command()
     async def mentor(self, ctx: commands.Context) -> None:
         member = ctx.message.author
+        logger.debug(f"Granting 'Mentor' role to {member.name}")
         role = get(member.guild.roles, name="Mentor")
-        logger.info(f"Granting 'Mentor' role to {member.name}")
         await member.add_roles(role, reason="user requested")
+        await member.send("Mentor role has been granted.")
+
+    @commands.command(name="agree")
+    async def member(self, ctx: commands.Context) -> None:
+        member = ctx.message.author
+        logger.debug(f"new !agree {member.name}")
+        role = get(member.guild.roles, name="Member")
+        await member.add_roles(role, reason="user accepted rules")
+        await member.send(f"Member role has been granted.")
