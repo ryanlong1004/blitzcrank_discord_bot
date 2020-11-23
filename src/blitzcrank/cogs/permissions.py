@@ -43,6 +43,11 @@ class Permissions(commands.Cog):
 
     @commands.command(name="agree")
     async def member(self, ctx: commands.Context) -> None:
+        """Grants member status when user types !agree
+
+        Args:
+            ctx (commands.Context):
+        """
         member = ctx.message.author
         logger.debug(f"new !agree {member.name}")
         role = get(member.guild.roles, name="Member")
