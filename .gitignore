@@ -33,3 +33,6 @@ htmlcov/
 
 # ignore vscode files
 .vscode/
+
+# ignore json tasks
+*_task.json

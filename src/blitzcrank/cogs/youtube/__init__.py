@@ -9,6 +9,7 @@ from discord.utils import get, time_snowflake
 from discord_webhook.webhook import DiscordEmbed, DiscordWebhook
 
 from datetime import datetime
+import time
 import os
 import requests
 import json
@@ -17,6 +18,13 @@ logger = logging.getLogger(__name__)
 
 
 class YouTube(commands.Cog):
+    """Cog for getting the latest videos from Youtube channels and sending
+    them to their channel via webhook
+
+    Args:
+        commands (commands.Cog): Cog base class
+    """
+
     def __init__(self, bot):
         self.bot = bot
         self.update.start()
@@ -53,7 +61,7 @@ def _fetch_updates(directories: str) -> Iterator[Tuple[Video, Task]]:
         try:
             logger.debug(f"running task {task}")
             video = _get_latest_video_from_task(task)
-            time_snowflake.sleep(5)
+            time.sleep(5)
             if task.etag != video.etag:  # new video found
                 task.last_update = datetime.now().isoformat()
                 task.etag = video.etag
@@ -101,13 +109,7 @@ def _load_tasks_from_directory(directories: str) -> Iterator[Tuple[Task, str]]:
             yield (Task.from_file(_file), _file)
 
 
-class Error(Exception):
-    """Base class for exceptions in this module."""
-
-    pass
-
-
-class LimitExceededWarning(Error):
+class LimitExceededWarning(Exception):
     """Exception raised for errors in the input."""
 
     pass
