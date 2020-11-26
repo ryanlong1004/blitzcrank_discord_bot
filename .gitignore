@@ -30,3 +30,6 @@ htmlcov/
 
 # log files
 *.log
+
+# vscode file
+.vscode
