@@ -12,7 +12,6 @@ from blitzcrank.cogs.commands import Commands
 def main():
     load_dotenv()
     TOKEN = os.getenv("DISCORD_TOKEN")
-    GUILD = os.getenv("DISCORD_GUILD")
     CLIENT_ID = os.getenv("DISCORD_CLIENT_ID")
 
     logger = logging.getLogger()
@@ -30,7 +29,7 @@ def main():
         logger.info("We have logged in as {0.user}".format(bot))
 
     bot.add_cog(Welcome(bot))
-    bot.add_cog(YouTube(bot))
+    # bot.add_cog(YouTube(bot))
     bot.add_cog(Permissions(bot))
     bot.add_cog(Commands(bot))
     bot.add_cog(AdminUtilities(bot, CLIENT_ID))

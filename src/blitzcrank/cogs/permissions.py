@@ -1,6 +1,8 @@
-import discord
+from typing import Union
 from discord.ext import commands
 from discord.utils import get
+
+from blitzcrank.services import grant_member_role, MemberRoleException
 
 import logging
 
@@ -10,12 +12,6 @@ logger = logging.getLogger(__name__)
 class Permissions(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-
-    # @commands.command()
-    # @commands.has_role("Admin")
-    # async def kisses(self, ctx: commands.Context) -> None:
-    #     response = "Muah muah muah"
-    #     await ctx.send(response)
 
     # @commands.Cog.listener()
     # async def on_member_join(self, member):
@@ -35,21 +31,22 @@ class Permissions(commands.Cog):
 
     @commands.command()
     async def mentor(self, ctx: commands.Context) -> None:
-        member = ctx.message.author
-        logger.debug(f"Granting 'Mentor' role to {member.name}")
-        role = get(member.guild.roles, name="Mentor")
-        await member.add_roles(role, reason="user requested")
-        await member.send("Mentor role has been granted.")
+        try:
+            await grant_member_role(ctx, "Mentor")
+            await ctx.message.author.send(f"Mentor role granted")
+        except MemberRoleException as e:
+            logger.error(e)
+            await ctx.message.author.send(
+                f"Unable to grant role.  Admin has been notified."
+            )
 
     @commands.command(name="agree")
     async def member(self, ctx: commands.Context) -> None:
-        """Grants member status when user types !agree
-
-        Args:
-            ctx (commands.Context):
-        """
-        member = ctx.message.author
-        logger.debug(f"new !agree {member.name}")
-        role = get(member.guild.roles, name="Member")
-        await member.add_roles(role, reason="user accepted rules")
-        await member.send(f"Member role has been granted.")
+        try:
+            await grant_member_role(ctx, "Member")
+            await ctx.message.author.send(f"Member role granted")
+        except Exception as e:
+            logger.error(e)
+            await ctx.message.author.send(
+                f"Unable to grant role.  Admin has been notified."
+            )
