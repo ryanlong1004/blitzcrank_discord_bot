@@ -1,10 +1,9 @@
+import logging
 from typing import Union
+
+from blitzcrank.services import MemberRoleException, grant_member_role
 from discord.ext import commands
 from discord.utils import get
-
-from blitzcrank.services import grant_member_role, MemberRoleException
-
-import logging
 
 logger = logging.getLogger(__name__)
 
