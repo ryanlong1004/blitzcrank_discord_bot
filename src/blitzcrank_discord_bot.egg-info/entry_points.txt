@@ -1,0 +1,3 @@
+[console_scripts]
+blitz_start = blitzcrank.bot:main
+
