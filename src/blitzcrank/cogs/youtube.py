@@ -1,15 +1,13 @@
-import logging
-from typing import Any, Dict, Iterator, List, Tuple
-
-from discord.ext import commands, tasks
-from discord.utils import get, time_snowflake
-from discord_webhook.webhook import DiscordEmbed, DiscordWebhook
-
-from datetime import datetime
-import time
-import os
-import requests
 import json
+import logging
+import os
+import time
+from datetime import datetime
+from typing import Any, Dict, Iterator, Tuple
+
+import requests
+from discord.ext import commands, tasks
+from discord_webhook.webhook import DiscordEmbed, DiscordWebhook
 
 logger = logging.getLogger(__name__)
 
@@ -33,6 +31,7 @@ class Task:
     def __iter__(self):
         return iter(self.__dict__.items())
 
+    @staticmethod
     def from_file(_file: str) -> "Task":
         with open(_file, "r") as f:
             return Task(json.load(f))
@@ -97,7 +96,7 @@ class YouTube(commands.Cog):
     @tasks.loop(seconds=60 * 60)
     async def update(self):
         logger.debug("checking for Youtube updates")
-        for video, task in _fetch_updates("./src/blitzcrank/cogs/youtube/data"):
+        for video, task in _fetch_updates("./src/blitzcrank/cogs/data"):
             print(video)
             self.publish(video, task)
 
