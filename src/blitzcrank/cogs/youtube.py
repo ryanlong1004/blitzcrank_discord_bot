@@ -3,7 +3,7 @@ import logging
 import os
 import time
 from datetime import datetime
-from typing import Any, Dict, Iterator, Tuple
+from typing import Any, Dict, Iterator, List, Tuple
 
 import requests
 from discord.ext import commands, tasks
@@ -97,7 +97,6 @@ class YouTube(commands.Cog):
     async def update(self):
         logger.debug("checking for Youtube updates")
         for video, task in _fetch_updates("./src/blitzcrank/cogs/data"):
-            print(video)
             self.publish(video, task)
 
     @update.before_loop
@@ -120,7 +119,8 @@ class YouTube(commands.Cog):
         webhook.execute()
 
 
-def _fetch_updates(directories: str) -> Iterator[Tuple[Video, Task]]:
+def _fetch_updates(directories: str) -> List[Tuple[Video, Task]]:
+    results = []
     for task, file in _load_tasks_from_directory(directories):
         try:
             logger.debug(f"running task {task}")
@@ -128,18 +128,21 @@ def _fetch_updates(directories: str) -> Iterator[Tuple[Video, Task]]:
             time.sleep(5)
             logger.debug(f"Comparing stored etag {task.etag} to newest {video.etag}")
             if task.etag != video.etag:  # new video found
-                logger.debug(f"New youtube video found with etag {video.etag}")
+                logger.info(f"New video found {video}")
                 task.last_update = datetime.now().isoformat()
                 task.etag = video.etag
                 logger.debug(f"updating task file with data: {task}")
                 _save_task_file(task, file)
-                yield (video, task)
+                results.append(
+                    (video, task),
+                )
         except LimitExceededWarning:
             logger.warning("the number of Youtube requests has been exceeded")
-            return []
+            return results
         except Exception as e:
             logger.error(e)
-            return []
+            continue
+    return results
 
 
 def _get_latest_video_from_task(task: Task) -> Video:
