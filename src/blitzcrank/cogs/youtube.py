@@ -126,7 +126,7 @@ def _fetch_updates(directories: str) -> List[Tuple[Video, Task]]:
             logger.debug(f"running task {task}")
             video = _get_latest_video_from_task(task)
             time.sleep(5)
-            logger.debug(f"Comparing stored etag {task.etag} to newest {video.etag}")
+            logger.debug(f"stored etag: {task.etag} fetched etag: {video.etag}")
             if task.etag != video.etag:  # new video found
                 logger.info(f"New video found {video}")
                 task.last_update = datetime.now().isoformat()
@@ -140,7 +140,7 @@ def _fetch_updates(directories: str) -> List[Tuple[Video, Task]]:
             logger.warning("the number of Youtube requests has been exceeded")
             return results
         except Exception as e:
-            logger.error(e)
+            logger.error(f"Unexpected exception {str(e)}")
             continue
     return results
 
