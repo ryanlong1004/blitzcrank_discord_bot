@@ -22,7 +22,7 @@ class Podcast:
         results = feedparser.parse(url)
         id = results["entries"][0]["id"]
         link = results["entries"][0]["link"]
-        image = re.search(cls.PATTERN, results["entries"][0]["summary"]).group(2)
+        image = re.search(cls.PATTERN, str(results["entries"][0]["summary"])).group(2)
         return Podcast(id, link, image)
 
 
