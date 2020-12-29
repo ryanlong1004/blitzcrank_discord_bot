@@ -1,8 +1,10 @@
 import logging
 import feedparser
 import re
-from discord import Embed, Webhook, RequestsWebhookAdapter
-from feedparser.util import FeedParserDict
+
+from blitzcrank.services.discordx import publish
+from discord.ext import commands, tasks
+
 
 logger = logging.getLogger(__name__)
 
@@ -23,22 +25,10 @@ class Podcast(dict):
         Returns:
             FeedParserDict: data fetched
         """
-        return feedparser.parse(url)
-
-    def publish(self, url):
-        """Publishes podcast to Discord as embed
-
-        Args:
-            podcast (Podcast): podcast to publish
-            webhook_url (str): Discord webhook URL
-        """
-
-        embeded = Embed.from_dict(self)
-        webhook = Webhook.from_url(
-            url,
-            adapter=RequestsWebhookAdapter(),
-        )
-        webhook.send(embed=embeded)
+        try:
+            return feedparser.parse(url)
+        except Exception as e:
+            logger.error(str(e))
 
 
 class CodingBlocks(Podcast):
@@ -64,10 +54,13 @@ class CodingBlocks(Podcast):
 
     @classmethod
     def image(cls, results):
+        url: str = re.search(
+            cls.IMAGE_URL_PATTERN, results["entries"][0]["summary"]
+        ).group(2)
+        if url is None or url is "":
+            raise AttributeError("could not locate image url")
         return {
-            "url": re.search(
-                cls.IMAGE_URL_PATTERN, results["entries"][0]["summary"]
-            ).group(2),
+            "url": url,
         }
 
     @classmethod
@@ -98,9 +91,31 @@ class CodingBlocks(Podcast):
         )
 
 
+class RSS(commands.Cog):
+    """Cog for getting the latest videos from Youtube channels and sending
+    them to their channel via webhook
+
+    Args:
+        commands (commands.Cog): Cog base class
+    """
+
+    def __init__(self, bot):
+        self.bot = bot
+        self.update.start()
+
+    @tasks.loop(seconds=60 * 60 * 60 * 24)
+    async def update(self) -> None:
+        logger.debug("checking for RSS updates")
+        podcast = CodingBlocks.from_feed("https://www.codingblocks.net/feed/podcast")
+        publish(
+            podcast,
+            "https://discord.com/api/webhooks/793195455194333186/Kvie1rOoBa28XyKb15epsnZmQ0EIQ16GnSonJ8Gfi1K4Wpn907mIcRpjRlhM6fCAKPrh",
+        )
+
+    @update.before_loop
+    async def before_update(self) -> None:
+        await self.bot.wait_until_ready()
+
+
 if __name__ == "__main__":
-    podcast = CodingBlocks.from_feed(
-        "https://www.codingblocks.net/feed/podcast"
-    ).publish(
-        "https://discord.com/api/webhooks/793195455194333186/Kvie1rOoBa28XyKb15epsnZmQ0EIQ16GnSonJ8Gfi1K4Wpn907mIcRpjRlhM6fCAKPrh"
-    )
+    pass
