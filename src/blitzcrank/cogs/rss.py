@@ -2,66 +2,66 @@ import logging
 import feedparser
 import re
 
+from sqlalchemy import Column, Integer, String
+from sqlalchemy.engine.base import Engine
+
 from blitzcrank.services.discordx import publish
 from discord.ext import commands, tasks
 
+from sqlalchemy.ext.declarative import declarative_base
 
 logger = logging.getLogger(__name__)
 
+Base = declarative_base()
 
-class Podcast(dict):
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
+Session = sessionmaker()
+engine: Engine = create_engine(f"sqlite:///test.db")
+Session.configure(bind=engine)
+session = Session()
+
+
+class Podcast(Base):
     """Represents podcast data """
 
-    def __repr__(self):
-        return f"{self.__dict__.items()}"
+    __tablename__ = "podcast"
 
-    @classmethod
-    def fetch_feed(cls, url):
-        """Returns data from RSS feed
+    id = Column(String, primary_key=True)
+    description = Column(String)
+    url = Column(String)
+    title = Column(String)
+    image = Column(String)
 
-        Args:
-            url (str): URL to fetch RSS data from
+    def as_embed(self):
+        return {
+            "id": self.id,
+            "description": self.description,
+            "url": self.url,
+            "title": self.title,
+            "image": {
+                "url": self.image,
+            },
+        }
 
-        Returns:
-            FeedParserDict: data fetched
-        """
-        try:
-            return feedparser.parse(url)
-        except Exception as e:
-            logger.error(str(e))
 
-
-class CodingBlocks(Podcast):
-    """Represents CodingBlocks podcast data """
-
+def from_results(results):
     IMAGE_URL_PATTERN = r"(src=\")(\S*)(\")"
 
-    @classmethod
-    def id(cls, results):
-        return results["entries"][0]["id"]
+    return {
+        "id": results["entries"][0]["id"],
+        "description": results["entries"][0]["subtitle"],
+        "url": results["entries"][0]["link"],
+        "title": f"{results['entries'][0]['itunes_title']} ({results['entries'][0]['itunes_episode']})",
+        "image": re.search(IMAGE_URL_PATTERN, results["entries"][0]["summary"]).group(
+            2
+        ),
+    }
 
-    @classmethod
-    def description(cls, results):
-        return results["entries"][0]["subtitle"]
 
-    @classmethod
-    def url(cls, results):
-        return results["entries"][0]["link"]
-
-    @classmethod
-    def title(cls, results):
-        return f"{results['entries'][0]['itunes_title']} ({results['entries'][0]['itunes_episode']})"
-
-    @classmethod
-    def image(cls, results):
-        url: str = re.search(
-            cls.IMAGE_URL_PATTERN, results["entries"][0]["summary"]
-        ).group(2)
-        if url is None or url is "":
-            raise AttributeError("could not locate image url")
-        return {
-            "url": url,
-        }
+class CodingBlocks:
+    """Represents CodingBlocks podcast data """
 
     @classmethod
     def from_feed(cls, url) -> Podcast:
@@ -74,21 +74,22 @@ class CodingBlocks(Podcast):
             Podcast: [description]
         """
         try:
-            results = super().fetch_feed(url)
+            results = feedparser.parse(url)
         except Exception as e:
             logger.error(e)
             return Podcast()
 
-        return Podcast(
-            {
-                "id": cls.id(results),
-                "url": cls.url(results),
-                "description": cls.description(results),
-                "title": cls.title(results),
-                "type": "rich",
-                "image": cls.image(results),
-            }
-        )
+        try:
+            data = from_results(results)
+            podcast = Podcast(**data)
+            Base.metadata.create_all(engine)
+            session.add(podcast)
+            session.commit()
+            return data
+        except Exception as e:
+            print(f"Unable to process podcast feed: {e}")
+            logger.warning(f"Unable to process podcast feed: {e}")
+            return Podcast()
 
 
 class RSS(commands.Cog):
@@ -106,11 +107,18 @@ class RSS(commands.Cog):
     @tasks.loop(seconds=60 * 60 * 60 * 24)
     async def update(self) -> None:
         logger.debug("checking for RSS updates")
-        podcast = CodingBlocks.from_feed("https://www.codingblocks.net/feed/podcast")
-        publish(
-            podcast,
-            "https://discord.com/api/webhooks/793195455194333186/Kvie1rOoBa28XyKb15epsnZmQ0EIQ16GnSonJ8Gfi1K4Wpn907mIcRpjRlhM6fCAKPrh",
-        )
+        podcast = CodingBlocks.from_feed(
+            "https://www.codingblocks.net/feed/podcast"
+        ).as_embed()
+        podcast["type"] = "rich"
+        try:
+            publish(
+                podcast,
+                "https://discord.com/api/webhooks/793195455194333186/Kvie1rOoBa28XyKb15epsnZmQ0EIQ16GnSonJ8Gfi1K4Wpn907mIcRpjRlhM6fCAKPrh",
+            )
+        except Exception as e:
+            logger.warning(f"Publish podcast failed: {e} - {podcast}")
+            self.update.stop()
 
     @update.before_loop
     async def before_update(self) -> None:
