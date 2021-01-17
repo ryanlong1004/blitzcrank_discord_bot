@@ -132,6 +132,7 @@ setup(
         "discord-webhook>=0.11.0",
         "python-dotenv>=0.15.0",
         "SQLAlchemy==1.3.22",
+        "feedparser==6.0.2",
     ],  # Optional
     # List additional groups of dependencies here (e.g. development
     # dependencies). Users will be able to install these using the "extras"
