@@ -10,6 +10,8 @@ def publish(data: Dict[str, Any], url: str) -> None:
         webhook_url (str): Discord webhook URL
     """
 
+    print("*********************************************")
+    print(data)
     embeded = Embed.from_dict(data)
     webhook = Webhook.from_url(
         url,
