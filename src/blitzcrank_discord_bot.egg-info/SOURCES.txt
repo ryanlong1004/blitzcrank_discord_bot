@@ -5,12 +5,6 @@ pyproject.toml
 setup.cfg
 setup.py
 data/data_file
-src/blitzcrank/bot.py
-src/blitzcrank/simple.py
-src/blitzcrank/cogs/__init__.py
-src/blitzcrank/cogs/admin_utilities.py
-src/blitzcrank/cogs/permissions.py
-src/blitzcrank/cogs/welcome.py
 src/blitzcrank_discord_bot.egg-info/PKG-INFO
 src/blitzcrank_discord_bot.egg-info/SOURCES.txt
 src/blitzcrank_discord_bot.egg-info/dependency_links.txt
