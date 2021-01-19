@@ -1,13 +1,14 @@
 import datetime
 import logging
 import re
+import typing
 
-from sqlalchemy import Column, DateTime, Integer, String
+from sqlalchemy import Column, DateTime, String
 from sqlalchemy.ext.declarative import declarative_base
 
 logger: logging.Logger = logging.getLogger(__name__)
 
-Base = declarative_base()
+Base: typing.Any = declarative_base()
 
 
 class Podcast(Base):

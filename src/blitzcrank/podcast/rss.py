@@ -1,3 +1,5 @@
+"""Podcast RSS gateway
+"""
 import logging
 import typing
 

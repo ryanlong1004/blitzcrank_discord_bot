@@ -1,3 +1,6 @@
+"""Podcast server (Discord) gateway
+"""
+
 import typing
 from discord import Embed, Webhook, RequestsWebhookAdapter
 

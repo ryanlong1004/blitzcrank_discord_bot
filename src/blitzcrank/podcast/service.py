@@ -17,6 +17,8 @@ logger: logging.Logger = logging.getLogger(__name__)
 
 
 class Service:
+    """Podcast Service"""
+
     def __init__(
         self,
         session: typing.Union[Session, None] = None,
