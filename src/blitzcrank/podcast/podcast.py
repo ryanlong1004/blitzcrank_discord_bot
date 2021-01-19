@@ -5,7 +5,7 @@ import re
 from sqlalchemy import Column, DateTime, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
 Base = declarative_base()
 
@@ -25,6 +25,15 @@ class Podcast(Base):
 
     @staticmethod
     def _from_results(results):
+        """Extracts the data from the first result and returns
+        as a dict
+
+        Args:
+            results (FeedParserDict): parsed results
+
+        Returns:
+            dict: select key/value pairs
+        """
         IMAGE_URL_PATTERN = r"(src=\")(\S*)(\")"
 
         return {

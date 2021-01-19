@@ -5,7 +5,7 @@ from blitzcrank.cogs.permissions import Permissions
 from discord.ext import commands
 from discord.utils import get
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
 
 class Welcome(commands.Cog):

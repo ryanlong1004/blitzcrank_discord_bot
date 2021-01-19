@@ -19,7 +19,16 @@ def publish_podcast(podcast: Podcast, url: str) -> None:
     webhook.send(embed=embeded)
 
 
-def _as_embed(podcast: Podcast):
+def _as_embed(podcast: Podcast) -> typing.Dict:
+    """Returns the podcast as a dictionary for publishing
+    to discord
+
+    Args:
+        podcast (Podcast): object
+
+    Returns:
+        typing.Dict: key/values for discord embed object
+    """
     return {
         "id": podcast.id,
         "description": podcast.description,

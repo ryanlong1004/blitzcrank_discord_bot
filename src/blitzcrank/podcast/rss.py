@@ -1,11 +1,21 @@
 import logging
+import typing
 
 import feedparser
+from feedparser.util import FeedParserDict
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
 
-def fetch_feed_results(url):
+def fetch_feed_results(url: str) -> typing.Optional[FeedParserDict]:
+    """Returns the raw rss results from the url
+
+    Args:
+        url (str): URL to fetch
+
+    Returns:
+        FeedParserDict: rss results
+    """
     try:
         return feedparser.parse(url)
     except Exception as e:

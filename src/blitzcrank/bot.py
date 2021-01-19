@@ -17,7 +17,7 @@ def main():
     TOKEN = os.getenv("DISCORD_TOKEN")
     CLIENT_ID = os.getenv("DISCORD_CLIENT_ID")
 
-    logger = logging.getLogger()
+    logger: logging.Logger = logging.getLogger()
     logger.setLevel(logging.DEBUG)
     handler = logging.FileHandler(filename="blitzcrank.log", encoding="utf-8", mode="w")
     handler.setFormatter(

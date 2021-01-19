@@ -5,9 +5,9 @@ from blitzcrank.podcast.podcast import Podcast
 
 from blitzcrank.podcast.service import Service as PodcastService
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
-podcast_service = PodcastService()
+podcast_service: PodcastService = PodcastService()
 
 
 class Podcasts(commands.Cog):
@@ -20,20 +20,19 @@ class Podcasts(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
+        self.webhook_url = "https://discord.com/api/webhooks/793195455194333186/Kvie1rOoBa28XyKb15epsnZmQ0EIQ16GnSonJ8Gfi1K4Wpn907mIcRpjRlhM6fCAKPrh"
         self.update.start()
 
     @tasks.loop(seconds=60 * 60 * 60 * 24)
     async def update(self) -> None:
         logger.debug("checking for RSS updates")
-        podcast = podcast_service.fetch_recent_podcast()
-        last = podcast_service.last()
-        print(podcast.id)
-        print(last.id)
+        podcast: Podcast = podcast_service.fetch_last_remote()
+        last: Podcast = podcast_service.fetch_last_local()
         if podcast.id != last.id:
             try:
                 podcast_service.publish(
                     podcast,
-                    "https://discord.com/api/webhooks/793195455194333186/Kvie1rOoBa28XyKb15epsnZmQ0EIQ16GnSonJ8Gfi1K4Wpn907mIcRpjRlhM6fCAKPrh",
+                    self.webhook_url,
                 )
                 podcast_service.save(podcast)  # TODO Will need error handling
             except Exception as e:
@@ -42,4 +41,5 @@ class Podcasts(commands.Cog):
 
     @update.before_loop
     async def before_update(self) -> None:
+        logger.debug("Waiting for bot to initialize")
         await self.bot.wait_until_ready()

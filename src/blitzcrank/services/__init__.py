@@ -5,7 +5,7 @@ from discord.utils import get
 
 import logging
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
 
 async def grant_member_role(ctx: commands.Context, role_name) -> None:
