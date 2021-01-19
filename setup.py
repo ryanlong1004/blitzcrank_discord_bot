@@ -129,15 +129,9 @@ setup(
     install_requires=[
         "discord>=1.0.1",
         "discord.py>=1.5.1",
-        "discord-webhook>=0.11.0",
         "python-dotenv>=0.15.0",
-<<<<<<< HEAD
         "feedparser==6.0.2",
-        "python-dotenv==0.15.0",
-=======
         "SQLAlchemy==1.3.22",
-        "feedparser==6.0.2",
->>>>>>> 775b3f0110c44adcf35fc3998d0969a0c0bd7157
     ],  # Optional
     # List additional groups of dependencies here (e.g. development
     # dependencies). Users will be able to install these using the "extras"
@@ -148,7 +142,7 @@ setup(
     # Similar to `install_requires` above, these must be valid existing
     # projects.
     extras_require={  # Optional
-        "dev": ["check-manifest", "black"],
+        "dev": ["check-manifest", "black", "rope"],
         "test": ["pytest", "pytest-cov"],
     },
     # If there are data files included in your packages that need to be
