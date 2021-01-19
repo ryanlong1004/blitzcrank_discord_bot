@@ -37,9 +37,15 @@ may be appropriate.
 [md]: https://tools.ietf.org/html/rfc7764#section-3.5 "CommonMark variant"
 [md use]: https://packaging.python.org/specifications/core-metadata/#description-content-type-optional
 
-## nOTES
+## NOTES
+
+### Discord.py
+
+https://discordpy.readthedocs.io/en/latest/search.html?q=embed
 
 To prevent infinite loops, not always necessary.
+
+### Best Practices
 
 ```python
 @bot.event
