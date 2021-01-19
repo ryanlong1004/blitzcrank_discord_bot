@@ -1,8 +1,9 @@
+import datetime
 import logging
 import feedparser
 import re
 
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, DateTime
 from sqlalchemy.engine.base import Engine
 
 from blitzcrank.services.discordx import publish
@@ -33,6 +34,8 @@ class Podcast(Base):
     url = Column(String)
     title = Column(String)
     image = Column(String)
+    type = Column(String)
+    created_at = Column("created_at", DateTime, nullable=False)
 
     def as_embed(self):
         return {
@@ -57,6 +60,8 @@ def from_results(results):
         "image": re.search(IMAGE_URL_PATTERN, results["entries"][0]["summary"]).group(
             2
         ),
+        "type": "rich",
+        "created_at": datetime.datetime.utcnow(),
     }
 
 
@@ -82,10 +87,7 @@ class CodingBlocks:
         try:
             data = from_results(results)
             podcast = Podcast(**data)
-            Base.metadata.create_all(engine)
-            session.add(podcast)
-            session.commit()
-            return data
+            return podcast
         except Exception as e:
             print(f"Unable to process podcast feed: {e}")
             logger.warning(f"Unable to process podcast feed: {e}")
@@ -107,18 +109,20 @@ class RSS(commands.Cog):
     @tasks.loop(seconds=60 * 60 * 60 * 24)
     async def update(self) -> None:
         logger.debug("checking for RSS updates")
-        podcast = CodingBlocks.from_feed(
-            "https://www.codingblocks.net/feed/podcast"
-        ).as_embed()
-        podcast["type"] = "rich"
-        try:
-            publish(
-                podcast,
-                "https://discord.com/api/webhooks/793195455194333186/Kvie1rOoBa28XyKb15epsnZmQ0EIQ16GnSonJ8Gfi1K4Wpn907mIcRpjRlhM6fCAKPrh",
-            )
-        except Exception as e:
-            logger.warning(f"Publish podcast failed: {e} - {podcast}")
-            self.update.stop()
+        podcast = CodingBlocks.from_feed("https://www.codingblocks.net/feed/podcast")
+        last = session.query(Podcast).order_by("created_at")[0]
+        if podcast.id != last.id:
+            try:
+                publish(
+                    podcast.as_embed(),
+                    "https://discord.com/api/webhooks/793195455194333186/Kvie1rOoBa28XyKb15epsnZmQ0EIQ16GnSonJ8Gfi1K4Wpn907mIcRpjRlhM6fCAKPrh",
+                )
+                Base.metadata.create_all(engine)
+                session.add(podcast)
+                session.commit()
+            except Exception as e:
+                logger.warning(f"Publish podcast failed: {e} - {podcast}")
+                self.update.stop()
 
     @update.before_loop
     async def before_update(self) -> None:
