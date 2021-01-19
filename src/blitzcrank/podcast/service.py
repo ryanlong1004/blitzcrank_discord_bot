@@ -17,7 +17,19 @@ logger: logging.Logger = logging.getLogger(__name__)
 
 
 class Service:
-    def __init__(self, session=None, engine=None, base=None):
+    def __init__(
+        self,
+        session: typing.Union[Session, None] = None,
+        engine: typing.Union[Engine, None] = None,
+        base: typing.Union[typing.Any, None] = None,
+    ):
+        """Initizalize service.  Vars are for testing.
+
+        Args:
+            session (Session, None): Session object. Defaults to None.
+            engine (Engine, None): Engine object. Defaults to None.
+            base (Base, None): Base object. Defaults to None.
+        """
         self.session: typing.Union[Session, None] = session
         self.engine: typing.Union[Engine, None] = engine
         self.base: typing.Union[typing.Any, None] = base
@@ -28,7 +40,7 @@ class Service:
         Args:
             podcast (Podcast): object
         """
-        logger.debug(f"saving podcast {podcast}")
+        logger.debug(f"saving {self.__class__} {podcast}")
         self._get_base().metadata.create_all(self._get_engine())
         self._get_session().add(podcast)
         self._get_session().commit()
@@ -41,7 +53,7 @@ class Service:
         Returns:
             Podcast: object
         """
-        logger.debug("fetching last local podcast")
+        logger.debug(f"fetching last local {self.__class__}")
         return self._get_session().query(Podcast).order_by(Podcast.created_at.desc())[0]
 
     @staticmethod
@@ -52,7 +64,7 @@ class Service:
             podcast (Podcast): object
             url (str): webhook url to publish to
         """
-        logger.debug(f"publishing podcast {podcast}")
+        logger.debug(f"publishing {podcast}")
         publish_podcast(podcast, url)
 
     def fetch_last_remote(self) -> Podcast:
@@ -62,6 +74,7 @@ class Service:
         Returns:
             Podcast: object
         """
+        logging.debug(f"fetching last remote {self.__class__}")
         return Podcast(
             **_from_results(
                 fetch_feed_results("https://www.codingblocks.net/feed/podcast")
