@@ -24,8 +24,14 @@ class Podcast(Base):
     type = Column(String)
     created_at = Column("created_at", DateTime, nullable=False)
 
+    def __repr__(self):
+        return str(self.__dict__.items())
+
+    def __str__(self):
+        return f"<{self.__class__.__name__} '{self.id}' {self.title}>"
+
     @staticmethod
-    def _from_results(results):
+    def from_result(results):
         """Extracts the data from the first result and returns
         as a dict
 
@@ -37,14 +43,14 @@ class Podcast(Base):
         """
         IMAGE_URL_PATTERN = r"(src=\")(\S*)(\")"
 
-        return {
-            "id": results["entries"][0]["id"],
-            "description": results["entries"][0]["subtitle"],
-            "url": results["entries"][0]["link"],
-            "title": f"{results['entries'][0]['itunes_title']} ({results['entries'][0]['itunes_episode']})",
-            "image": re.search(
-                IMAGE_URL_PATTERN, results["entries"][0]["summary"]
-            ).group(2),
-            "type": "rich",
-            "created_at": datetime.datetime.utcnow(),
-        }
+        return Podcast(
+            id=results["entries"][0]["id"],
+            description=results["entries"][0]["subtitle"],
+            url=results["entries"][0]["link"],
+            title=f"{results['entries'][0]['itunes_title']} ({results['entries'][0]['itunes_episode']})",
+            image=re.search(IMAGE_URL_PATTERN, results["entries"][0]["summary"]).group(
+                2
+            ),
+            type="rich",
+            created_at=datetime.datetime.utcnow(),
+        )
