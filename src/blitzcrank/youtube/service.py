@@ -3,8 +3,14 @@ import logging
 import time
 from datetime import datetime
 from typing import List, Tuple
+import typing
+
+from sqlalchemy.orm.session import Session
+from sqlalchemy.engine.base import Engine
 
 import requests
+
+from blitzcrank.database.database import Database
 
 from .task import Task
 from .youtube import Video
@@ -18,7 +24,38 @@ class LimitExceededWarning(Exception):
     pass
 
 
-def _fetch_updates(directories: str) -> List[Tuple[Video, Task]]:
+def fetch_tasks():
+    pass
+
+
+class Service(Database):
+    """YouTube Service"""
+
+    def __init__(
+        self,
+        session: typing.Union[Session, None] = None,
+        engine: typing.Union[Engine, None] = None,
+        base: typing.Union[typing.Any, None] = None,
+    ):
+        """Initizalize service.  Vars are for testing.
+
+        Args:
+            session (Session, None): Session object. Defaults to None.
+            engine (Engine, None): Engine object. Defaults to None.
+            base (Base, None): Base object. Defaults to None.
+        """
+        super().__init__(session, engine, base)
+
+    def fetch_tasks(self) -> List[Task]:
+        return super().get_session().query(Task).all()
+
+    def run_tasks(self):
+        for task in self.fetch_tasks():
+            pass
+
+
+def fetch_updates():
+    # tasks = Task.
     results = []
     for task, file in _load_tasks_from_directory():
         try:
@@ -31,7 +68,7 @@ def _fetch_updates(directories: str) -> List[Tuple[Video, Task]]:
                 task.last_update = datetime.now().isoformat()
                 task.etag = video.etag
                 logger.debug(f"updating task file with data: {task}")
-                _save_task_file(task, file)
+                # _save_task_file(task, file)
                 results.append(
                     (video, task),
                 )
@@ -54,12 +91,6 @@ def _get_latest_video_from_task(task: Task) -> Video:
 
 def _create_video_from_result(result) -> Video:
     return Video.from_result(result)
-
-
-def _save_task_file(task: Task, _file: str) -> None:
-    logging.debug(f"Saving data: {task}")
-    with open(_file, "w") as __file:
-        json.dump(task.__dict__, __file)
 
 
 def _request(task: Task):

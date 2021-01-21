@@ -1,10 +1,13 @@
 import typing
+import logging
 
 from sqlalchemy.ext.declarative.api import declarative_base
 
 from sqlalchemy import Column, String, DateTime
 
 Base: typing.Any = declarative_base()
+
+logger: logging.Logger = logging.getLogger(__name__)
 
 
 class Task(Base):
