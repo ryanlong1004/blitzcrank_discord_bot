@@ -32,7 +32,7 @@ def main():
         logger.info("We have logged in as {0.user}".format(bot))
 
     bot.add_cog(Welcome(bot))
-    # bot.add_cog(YouTube(bot))
+    bot.add_cog(YouTube(bot))
     bot.add_cog(Podcasts(bot))
     bot.add_cog(Permissions(bot))
     bot.add_cog(Commands(bot))

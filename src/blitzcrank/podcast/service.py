@@ -52,7 +52,9 @@ class Service(Database):
             Podcast: object
         """
         logger.debug(f"fetching last local {self.__class__}")
-        return super().get_session().query(Podcast).order_by(Podcast.created_at.desc())[0]
+        return (
+            super().get_session().query(Podcast).order_by(Podcast.created_at.desc())[0]
+        )
 
     @staticmethod
     def publish(podcast: Podcast, url: str):
@@ -92,6 +94,9 @@ def _from_results(results) -> typing.Dict:
     TODO: DRY up for other podcasts
     """
     IMAGE_URL_PATTERN = r"(src=\")(\S*)(\")"
+
+    if len(results) < 1:
+        return {}
 
     return {
         "id": results["entries"][0]["id"],

@@ -1,19 +1,16 @@
-import json
 import logging
-import time
-from datetime import datetime
-from typing import List, Tuple
 import typing
-
-from sqlalchemy.orm.session import Session
-from sqlalchemy.engine.base import Engine
-
-import requests
+from datetime import datetime
+from typing import List
 
 from blitzcrank.database.database import Database
+from sqlalchemy.engine.base import Engine
+from sqlalchemy.orm.session import Session
 
+from .gateway import fetch_html
 from .task import Task
-from .youtube import Video
+from .video import Video
+from .server import publish_video
 
 logger: logging.Logger = logging.getLogger(__name__)
 
@@ -21,10 +18,6 @@ logger: logging.Logger = logging.getLogger(__name__)
 class LimitExceededWarning(Exception):
     """Exception raised for errors in the input."""
 
-    pass
-
-
-def fetch_tasks():
     pass
 
 
@@ -49,55 +42,60 @@ class Service(Database):
     def fetch_tasks(self) -> List[Task]:
         return super().get_session().query(Task).all()
 
+    def save_task(self, task: Task):
+        super().get_base().metadata.create_all(super().get_engine())
+        super().get_session().add(task)
+        super().get_session().commit()
+
+    def save_video(self, video: Video):
+        super().get_base().metadata.create_all(super().get_engine())
+        super().get_session().add(video)
+        super().get_session().commit()
+
     def run_tasks(self):
         for task in self.fetch_tasks():
-            pass
-
-
-def fetch_updates():
-    # tasks = Task.
-    results = []
-    for task, file in _load_tasks_from_directory():
-        try:
-            logger.debug(f"running task {task}")
-            video = _get_latest_video_from_task(task)
-            time.sleep(5)
-            logger.debug(f"stored etag: {task.etag} fetched etag: {video.etag}")
-            if task.etag != video.etag:  # new video found
-                logger.info(f"New video found {video}")
-                task.last_update = datetime.now().isoformat()
+            html = fetch_html(_create_fetch_url_from_task(task))
+            video = Video.from_result(html)
+            if task.etag != video.etag:
+                print("***********************")
+                print("PROCESSING ETAG")
+                logger.debug("PROCESSING ETAG")
+                self.save_video(video)
                 task.etag = video.etag
-                logger.debug(f"updating task file with data: {task}")
-                # _save_task_file(task, file)
-                results.append(
-                    (video, task),
-                )
-        except LimitExceededWarning:
-            logger.warning("the number of Youtube requests has been exceeded")
-            return results
-        except Exception as e:
-            logger.error(f"Unexpected exception {str(e)}")
-            continue
-    return results
+                publish_video(video, task.webhook_url)
+
+    # def fetch_updates():
+    #     # tasks = Task.
+    #     results = []
+    #     for task, file in _load_tasks_from_directory():
+    #         try:
+    #             logger.debug(f"running task {task}")
+    #             video = _get_latest_video_from_task(task)
+    #             time.sleep(5)
+    #             logger.debug(f"stored etag: {task.etag} fetched etag: {video.etag}")
+    #             if task.etag != video.etag:  # new video found
+    #                 logger.info(f"New video found {video}")
+    #                 task.last_update = datetime.now().isoformat()
+    #                 task.etag = video.etag
+    #                 logger.debug(f"updating task file with data: {task}")
+    #                 # _save_task_file(task, file)
+    #                 results.append(
+    #                     (video, task),
+    #                 )
+    #         except LimitExceededWarning:
+    #             logger.warning("the number of Youtube requests has been exceeded")
+    #             return results
+    #         except Exception as e:
+    #             logger.error(f"Unexpected exception {str(e)}")
+    #             continue
+    # return results
 
 
-def _load_tasks_from_directory():
-    return []
-
-
-def _get_latest_video_from_task(task: Task) -> Video:
-    return _create_video_from_result(_request(task)[0])
-
-
-def _create_video_from_result(result) -> Video:
-    return Video.from_result(result)
-
-
-def _request(task: Task):
-    response = requests.get(_create_fetch_url_from_task(task))
-    if response.status_code == 403:
-        raise LimitExceededWarning()
-    return response.json()["items"]
+# def _request(task: Task):
+#     response = requests.get(_create_fetch_url_from_task(task))
+#     if response.status_code == 403:
+#         raise LimitExceededWarning()
+#     return response.json()["items"]
 
 
 def _create_fetch_url_from_task(task: Task):
