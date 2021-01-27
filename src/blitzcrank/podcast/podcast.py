@@ -8,10 +8,12 @@ from sqlalchemy.ext.declarative import declarative_base
 
 logger: logging.Logger = logging.getLogger(__name__)
 
-Base: typing.Any = declarative_base()
+from blitzcrank.database.database import BASE, ENGINE, SESSION
 
 
-class Podcast(Base):
+
+
+class Podcast(BASE):
     """Represents podcast data """
 
     __tablename__ = "podcast"

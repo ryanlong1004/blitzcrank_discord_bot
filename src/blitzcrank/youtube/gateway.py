@@ -2,6 +2,8 @@ import requests
 
 import logging
 
+from requests.models import Response
+
 logger: logging.Logger = logging.getLogger(__name__)
 
 
@@ -11,5 +13,5 @@ class LimitExceededWarning(Exception):
     pass
 
 
-async def fetch_html(url: str):
-    return requests.get(url).text
+def fetch_html(url: str) -> str:
+    return requests.get(url).json()["items"]

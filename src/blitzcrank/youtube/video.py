@@ -1,13 +1,10 @@
-import typing
+from datetime import datetime
 
-from sqlalchemy.ext.declarative.api import declarative_base
-
-from sqlalchemy import Column, String, DateTime
-
-Base: typing.Any = declarative_base()
+from blitzcrank.database.database import BASE
+from sqlalchemy import Column, DateTime, String
 
 
-class Video(Base):
+class Video(BASE):
     """Represents a YouTube Video"""
 
     __tablename__ = "videos"
@@ -16,16 +13,17 @@ class Video(Base):
     description = Column(String)
     etag = Column(String, primary_key=True)
     thumbnails = Column(String)
-    published_at = Column("published_at", DateTime, nullable=False)
+    published_at = Column(DateTime)
     link = Column(String)
 
+    # 2021-01-27 04:38:23.000000
     def __init__(
         self,
         title: str,
         description: str,
         etag: str,
         thumbnails: str,
-        published_at: str,
+        published_at: datetime,
         link: str,
     ):
         self.title = title
@@ -44,8 +42,10 @@ class Video(Base):
             title=meta_data["title"],
             description=meta_data["description"],
             etag=data["etag"],
-            thumbnails=meta_data["thumbnails"],
-            published_at=meta_data["publishedAt"],
+            thumbnails=meta_data["thumbnails"]["default"]["url"],
+            published_at=datetime.strptime(
+                meta_data["publishedAt"], "%Y-%m-%dT%I:%M:%SZ"
+            ),
             link=f"https://youtube.com/watch?v={data['id']['videoId']}",
         )
 

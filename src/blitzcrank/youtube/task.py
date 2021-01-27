@@ -1,16 +1,13 @@
 import logging
-import typing
 
-from requests import api
+
 from sqlalchemy import Column, DateTime, String
-from sqlalchemy.ext.declarative.api import declarative_base
 
-Base: typing.Any = declarative_base()
+from blitzcrank.database.database import BASE
 
 logger: logging.Logger = logging.getLogger(__name__)
 
-
-class Task(Base):
+class Task(BASE):
     """Represents a task to fetch a YouTube Video"""
 
     __tablename__ = "tasks"

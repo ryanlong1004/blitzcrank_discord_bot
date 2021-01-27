@@ -3,8 +3,8 @@ import logging
 import re
 import typing
 
-from blitzcrank.database.database import Database
-from sqlalchemy.engine.base import Engine
+from blitzcrank.database.database import BASE, ENGINE, SESSION
+
 from sqlalchemy.orm.session import Session
 
 from .podcast import Podcast
@@ -14,23 +14,12 @@ from .server import publish_podcast
 logger: logging.Logger = logging.getLogger(__name__)
 
 
-class Service(Database):
+class Service:
     """Podcast Service"""
 
-    def __init__(
-        self,
-        session: typing.Union[Session, None] = None,
-        engine: typing.Union[Engine, None] = None,
-        base: typing.Union[typing.Any, None] = None,
-    ):
-        """Initizalize service.  Vars are for testing.
-
-        Args:
-            session (Session, None): Session object. Defaults to None.
-            engine (Engine, None): Engine object. Defaults to None.
-            base (Base, None): Base object. Defaults to None.
-        """
-        super().__init__(session, engine, base)
+    def __init__(self):
+        self.session: Session = SESSION()
+        BASE.metadata.create_all(ENGINE)
 
     def save(self, podcast: Podcast) -> Podcast:
         """Saves a podcast to persistence
@@ -39,9 +28,9 @@ class Service(Database):
             podcast (Podcast): object
         """
         logger.debug(f"saving {self.__class__} {podcast}")
-        super().get_base().metadata.create_all(super().get_engine())
-        super().get_session().add(podcast)
-        super().get_session().commit()
+        BASE.metadata.create_all(ENGINE)
+        SESSION.add(podcast)
+        self.session.commit()
         return self.fetch_last_local()
 
     def fetch_last_local(self) -> Podcast:
@@ -52,9 +41,7 @@ class Service(Database):
             Podcast: object
         """
         logger.debug(f"fetching last local {self.__class__}")
-        return (
-            super().get_session().query(Podcast).order_by(Podcast.created_at.desc())[0]
-        )
+        return self.session.query(Podcast).order_by(Podcast.created_at.desc())[0]
 
     @staticmethod
     def publish(podcast: Podcast, url: str):

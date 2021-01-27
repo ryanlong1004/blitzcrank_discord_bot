@@ -33,11 +33,11 @@ def _as_embed(video: Video) -> typing.Dict:
         typing.Dict: key/values for discord embed object
     """
     return {
-        "id": video.id,
+        "id": video.etag,
         "description": video.description,
         "url": video.url,
         "title": video.title,
         "image": {
-            "url": video.image,
+            "url": video.thumbnails,
         },
     }
