@@ -41,7 +41,7 @@ class Video(BASE):
             title=meta_data["title"],
             description=meta_data["description"],
             etag=data["etag"],
-            thumbnails=meta_data["thumbnails"]["default"]["url"],
+            thumbnails=meta_data["thumbnails"]["medium"]["url"],
             published_at=datetime.strptime(
                 meta_data["publishedAt"], "%Y-%m-%dT%H:%M:%SZ"
             ),

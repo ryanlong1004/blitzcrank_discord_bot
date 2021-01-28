@@ -49,14 +49,15 @@ class Service:
         logger.debug(f"running tasks")
         for task in self.fetch_tasks():
             data: list[dict] = fetch_youtube_data(_create_fetch_url_from_task(task))
-            if len(data) < 1:
-                return
+            if data is None or len(data) < 1:
+                continue
             entry_data: dict = fetch_youtube_data(_create_fetch_url_from_task(task))[0]
             video: Video = Video.from_result(entry_data)
             logger.debug(f"fetched {video}")
 
+            logger.debug(f"comparing etags: Task: {task.etag} - Video: {video.etag}")
             if task.etag != video.etag:
-                logger.debug(f"Found new video {video}")
+                logger.debug(f"found new video {video}")
                 task.etag = video.etag
                 self.save_task(task)
                 self.save_video(video)

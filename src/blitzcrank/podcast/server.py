@@ -44,6 +44,7 @@ def _as_embed(podcast: Podcast) -> typing.Dict:
     """
     return {
         "id": podcast.id,
+        # "author": podcast.username, TODO
         "description": podcast.description,
         "url": podcast.url,
         "title": podcast.title,
