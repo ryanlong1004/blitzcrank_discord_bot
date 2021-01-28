@@ -1,13 +1,11 @@
 import logging
 
+from blitzcrank.podcast.service import Service
 from discord.ext import commands, tasks
-from blitzcrank.podcast.podcast import Podcast
-
-from blitzcrank.podcast.service import Service as PodcastService
 
 logger: logging.Logger = logging.getLogger(__name__)
 
-podcast_service: PodcastService = PodcastService()
+service: Service = Service()
 
 
 class Podcasts(commands.Cog):
@@ -23,21 +21,10 @@ class Podcasts(commands.Cog):
         self.webhook_url = "https://discord.com/api/webhooks/793195455194333186/Kvie1rOoBa28XyKb15epsnZmQ0EIQ16GnSonJ8Gfi1K4Wpn907mIcRpjRlhM6fCAKPrh"
         self.update.start()
 
-    @tasks.loop(seconds=60 * 60 * 60 * 24)
+    @tasks.loop(seconds=60 * 30)
     async def update(self) -> None:
-        logger.debug("checking for RSS updates")
-        podcast: Podcast = podcast_service.fetch_last_remote()
-        last: Podcast = podcast_service.fetch_last_local()
-        if podcast.id != last.id:
-            try:
-                podcast_service.publish(
-                    podcast,
-                    self.webhook_url,
-                )
-                podcast_service.save(podcast)  # TODO Will need error handling
-            except Exception as e:
-                logger.warning(f"Publish podcast failed: {e} - {podcast}")
-                self.update.stop()
+        logger.debug(f"checking for podcast updates")
+        service.run_tasks()
 
     @update.before_loop
     async def before_update(self) -> None:

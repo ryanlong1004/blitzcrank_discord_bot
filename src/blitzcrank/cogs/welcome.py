@@ -1,7 +1,6 @@
 import logging
 
 import discord
-from blitzcrank.cogs.permissions import Permissions
 from discord.ext import commands
 from discord.utils import get
 

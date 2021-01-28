@@ -4,7 +4,6 @@ import re
 import typing
 
 from blitzcrank.database.database import BASE, ENGINE, SESSION
-
 from sqlalchemy.orm.session import Session
 
 from .podcast import Podcast
@@ -29,7 +28,7 @@ class Service:
         """
         logger.debug(f"saving {self.__class__} {podcast}")
         BASE.metadata.create_all(ENGINE)
-        SESSION.add(podcast)
+        self.session.add(podcast)
         self.session.commit()
         return self.fetch_last_local()
 
@@ -44,7 +43,7 @@ class Service:
         return self.session.query(Podcast).order_by(Podcast.created_at.desc())[0]
 
     @staticmethod
-    def publish(podcast: Podcast, url: str):
+    def publish(podcast: Podcast, url: str) -> bool:
         """Publishes podcast to url
 
         Args:
@@ -52,7 +51,7 @@ class Service:
             url (str): webhook url to publish to
         """
         logger.debug(f"publishing {podcast}")
-        publish_podcast(podcast, url)
+        return publish_podcast(podcast, url)
 
     def fetch_last_remote(self) -> Podcast:
         """Returns the last remote podcast from the RSS feed based
@@ -62,40 +61,23 @@ class Service:
             Podcast: object
         """
         logging.debug(f"fetching last remote {self.__class__}")
-        return Podcast(
-            **_from_results(
-                fetch_feed_results("https://www.codingblocks.net/feed/podcast")
-            )
+        return Podcast.from_result(
+            fetch_feed_results("https://www.codingblocks.net/feed/podcast")
         )
 
-
-def _from_results(results) -> typing.Dict:
-    """Returns a dictionary for Coding Blocks Podcast
-
-    Args:
-        results (FeedParserDict): feedparser results from rss feed
-
-    Returns:
-        typing.Dict: parsed dictionary
-
-    TODO: DRY up for other podcasts
-    """
-    IMAGE_URL_PATTERN = r"(src=\")(\S*)(\")"
-
-    if len(results) < 1:
-        return {}
-
-    return {
-        "id": results["entries"][0]["id"],
-        "description": results["entries"][0]["subtitle"],
-        "url": results["entries"][0]["link"],
-        "title": f"{results['entries'][0]['itunes_title']} ({results['entries'][0]['itunes_episode']})",
-        "image": re.search(IMAGE_URL_PATTERN, results["entries"][0]["summary"]).group(
-            2
-        ),
-        "type": "rich",
-        "created_at": datetime.datetime.utcnow(),
-    }
+    def run_tasks(self):
+        logger.debug("checking for RSS updates")
+        podcast: Podcast = self.fetch_last_remote()
+        last: Podcast = self.fetch_last_local()
+        if podcast.id != last.id:
+            try:
+                self.publish(
+                    podcast,
+                    "https://discord.com/api/webhooks/793195455194333186/Kvie1rOoBa28XyKb15epsnZmQ0EIQ16GnSonJ8Gfi1K4Wpn907mIcRpjRlhM6fCAKPrh",
+                )
+                self.save(podcast)  # TODO Will need error handling
+            except Exception as e:
+                logger.error(f"publish podcast failed: {e} - {podcast}")
 
 
 if __name__ == "__main__":

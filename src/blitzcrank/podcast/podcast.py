@@ -11,8 +11,6 @@ logger: logging.Logger = logging.getLogger(__name__)
 from blitzcrank.database.database import BASE, ENGINE, SESSION
 
 
-
-
 class Podcast(BASE):
     """Represents podcast data """
 
@@ -26,14 +24,14 @@ class Podcast(BASE):
     type = Column(String)
     created_at = Column("created_at", DateTime, nullable=False)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return str(self.__dict__.items())
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"<{self.__class__.__name__} '{self.id}' {self.title}>"
 
     @staticmethod
-    def from_result(results):
+    def from_result(results) -> "Podcast":
         """Extracts the data from the first result and returns
         as a dict
 

@@ -16,7 +16,6 @@ class Video(BASE):
     published_at = Column(DateTime)
     link = Column(String)
 
-    # 2021-01-27 04:38:23.000000
     def __init__(
         self,
         title: str,
@@ -34,7 +33,7 @@ class Video(BASE):
         self.link = link
 
     @staticmethod
-    def from_result(result) -> "Video":
+    def from_result(result: dict) -> "Video":
         data = result
         meta_data = result["snippet"]
 
@@ -44,7 +43,7 @@ class Video(BASE):
             etag=data["etag"],
             thumbnails=meta_data["thumbnails"]["default"]["url"],
             published_at=datetime.strptime(
-                meta_data["publishedAt"], "%Y-%m-%dT%I:%M:%SZ"
+                meta_data["publishedAt"], "%Y-%m-%dT%H:%M:%SZ"
             ),
             link=f"https://youtube.com/watch?v={data['id']['videoId']}",
         )

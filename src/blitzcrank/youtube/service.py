@@ -8,7 +8,7 @@ from sqlalchemy.sql.sqltypes import JSON
 from blitzcrank.database.database import SESSION, ENGINE, BASE
 from sqlalchemy.orm.session import Session
 
-from .gateway import fetch_html
+from .gateway import fetch_youtube_data
 from .task import Task
 from .video import Video
 from .server import publish_video
@@ -30,25 +30,30 @@ class Service:
         BASE.metadata.create_all(ENGINE)
 
     def fetch_tasks(self) -> List[Task]:
+        logger.debug(f"fetching tasks")
         return self.session.query(Task).all()
 
     def save_task(self, task: Task):
+        logger.debug(f"saving task")
         BASE.metadata.create_all(ENGINE)
         self.session.add(task)
         self.session.commit()
 
     def save_video(self, video: Video):
+        logger.debug(f"saving video")
         BASE.metadata.create_all(ENGINE)
         self.session.add(video)
         self.session.commit()
 
     def run_tasks(self):
+        logger.debug(f"running tasks")
         for task in self.fetch_tasks():
-            html = fetch_html(_create_fetch_url_from_task(task))[0]
-            video: Video = Video.from_result(html)
+            data: dict = fetch_youtube_data(_create_fetch_url_from_task(task))[0]
+            video: Video = Video.from_result(data)
+            logger.debug(f"fetched {video}")
 
             if task.etag != video.etag:
-                logger.debug("PROCESSING ETAG")
+                logger.debug(f"Found new video {video}")
                 task.etag = video.etag
                 self.save_task(task)
                 self.save_video(video)

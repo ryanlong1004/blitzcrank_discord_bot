@@ -1,22 +1,11 @@
-import json
 import logging
-import os
-import time
-from datetime import datetime
-from typing import Any, Dict, Iterator, List, Tuple
 
-import requests
 from blitzcrank.youtube.service import Service
 from discord.ext import commands, tasks
-from discord_webhook.webhook import DiscordEmbed, DiscordWebhook
 
 logger: logging.Logger = logging.getLogger(__name__)
 
-
-class LimitExceededWarning(Exception):
-    """Exception raised for errors in the input."""
-
-    pass
+service: Service = Service()
 
 
 class YouTube(commands.Cog):
@@ -31,12 +20,12 @@ class YouTube(commands.Cog):
         self.bot = bot
         self.update.start()
 
-    @tasks.loop(seconds=60 * 60)
+    @tasks.loop(seconds=60 * 30)
     async def update(self):
         logger.debug("checking for Youtube updates")
-        service = Service()
         service.run_tasks()
 
     @update.before_loop
     async def before_update(self):
+        logger.debug("waiting for bot to be ready")
         await self.bot.wait_until_ready()

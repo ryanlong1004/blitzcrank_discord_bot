@@ -2,24 +2,36 @@
 """
 
 import typing
+import logging
 from discord import Embed, Webhook, RequestsWebhookAdapter
 
 from .video import Video
 
+logger: logging.Logger = logging.getLogger(__name__)
 
-def publish_video(video: Video, url: str) -> None:
-    """Publishes podcast to Discord as embed
+
+def publish_video(video: Video, url: str) -> bool:
+    """publish_video published a Video object to discord
 
     Args:
-        data (dict): key/value pair of embeded data
-        webhook_url (str): Discord webhook URL
+        video (Video): video to publish
+        url (str): url to publish to
+
+    Returns:
+        bool: True on success
     """
-    embeded = Embed.from_dict(_as_embed(video))
-    webhook = Webhook.from_url(
-        url,
-        adapter=RequestsWebhookAdapter(),
-    )
-    webhook.send(embed=embeded)
+    try:
+        embeded = Embed.from_dict(_as_embed(video))
+        webhook = Webhook.from_url(
+            url,
+            adapter=RequestsWebhookAdapter(),
+        )
+        webhook.send(embed=embeded)
+        logger.debug(f"published {video}")
+        return True
+    except Exception as e:
+        logger.error(f"failed to publish {video} -> {e}")
+        return False
 
 
 def _as_embed(video: Video) -> typing.Dict:

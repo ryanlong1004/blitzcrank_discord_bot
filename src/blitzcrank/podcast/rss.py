@@ -18,6 +18,7 @@ def fetch_feed_results(url: str) -> typing.Optional[FeedParserDict]:
     Returns:
         FeedParserDict: rss results
     """
+    logger.debug("fetching feed results")
     try:
         return feedparser.parse(url)
     except Exception as e:

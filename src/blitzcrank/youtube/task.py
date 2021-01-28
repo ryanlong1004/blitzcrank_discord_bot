@@ -1,11 +1,7 @@
-import logging
-
-
 from sqlalchemy import Column, DateTime, String
 
 from blitzcrank.database.database import BASE
 
-logger: logging.Logger = logging.getLogger(__name__)
 
 class Task(BASE):
     """Represents a task to fetch a YouTube Video"""
