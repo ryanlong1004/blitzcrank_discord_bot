@@ -20,7 +20,7 @@ class Service:
         self.session: Session = SESSION()
         BASE.metadata.create_all(ENGINE)
 
-    def save(self, podcast: Podcast) -> Podcast:
+    def save(self, podcast: Podcast) -> typing.Union[Podcast, None]:
         """Saves a podcast to persistence
 
         Args:
@@ -53,7 +53,7 @@ class Service:
         logger.debug(f"publishing {podcast}")
         return publish_podcast(podcast, url)
 
-    def fetch_last_remote(self) -> Podcast:
+    def fetch_last_remote(self) -> typing.Union[Podcast, None]:
         """Returns the last remote podcast from the RSS feed based
         on the first value returned.
 
@@ -67,7 +67,9 @@ class Service:
 
     def run_tasks(self):
         logger.debug("checking for RSS updates")
-        podcast: Podcast = self.fetch_last_remote()
+        podcast: typing.Union[Podcast, None] = self.fetch_last_remote()
+        if podcast is None:
+            return
         last: Podcast = self.fetch_last_local()
         if podcast.id != last.id:
             try:

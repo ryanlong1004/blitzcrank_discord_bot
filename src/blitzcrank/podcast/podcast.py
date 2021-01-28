@@ -4,7 +4,6 @@ import re
 import typing
 
 from sqlalchemy import Column, DateTime, String
-from sqlalchemy.ext.declarative import declarative_base
 
 logger: logging.Logger = logging.getLogger(__name__)
 
@@ -31,7 +30,7 @@ class Podcast(BASE):
         return f"<{self.__class__.__name__} '{self.id}' {self.title}>"
 
     @staticmethod
-    def from_result(results) -> "Podcast":
+    def from_result(results) -> typing.Union["Podcast", None]:
         """Extracts the data from the first result and returns
         as a dict
 
@@ -42,6 +41,9 @@ class Podcast(BASE):
             dict: select key/value pairs
         """
         IMAGE_URL_PATTERN = r"(src=\")(\S*)(\")"
+
+        if "entries" not in results or len(results["entries"]) < 1:
+            return None
 
         return Podcast(
             id=results["entries"][0]["id"],
