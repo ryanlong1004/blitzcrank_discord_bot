@@ -48,8 +48,11 @@ class Service:
     def run_tasks(self):
         logger.debug(f"running tasks")
         for task in self.fetch_tasks():
-            data: dict = fetch_youtube_data(_create_fetch_url_from_task(task))[0]
-            video: Video = Video.from_result(data)
+            data: list[dict] = fetch_youtube_data(_create_fetch_url_from_task(task))
+            if len(data) < 1:
+                return
+            entry_data: dict = fetch_youtube_data(_create_fetch_url_from_task(task))[0]
+            video: Video = Video.from_result(entry_data)
             logger.debug(f"fetched {video}")
 
             if task.etag != video.etag:
