@@ -32,6 +32,8 @@ class Video(BASE):
         self.published_at = published_at
         self.link = link
 
+    
+    
     @staticmethod
     def from_result(result: dict) -> "Video":
         data = result

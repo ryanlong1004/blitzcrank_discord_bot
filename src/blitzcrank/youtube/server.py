@@ -48,7 +48,6 @@ def _as_embed(video: Video) -> typing.Dict:
         "id": video.etag,
         # "author": podcast.username, TODO
         "description": video.description,
-        "video": video.link,
         "url": video.link,
         "title": video.title,
         "image": {
