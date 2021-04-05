@@ -131,7 +131,7 @@ setup(
         "discord.py>=1.5.1",
         "python-dotenv>=0.15.0",
         "feedparser==6.0.2",
-        "SQLAlchemy==1.3.22",
+        "SQLAlchemy==1.4.5",
         "requests",
     ],  # Optional
     # List additional groups of dependencies here (e.g. development
